@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PocketWork</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="{{ url_for('static', filename = 'favicon.png') }}" type="image/x-icon">  
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'tailwind.css') }}">
+	<style type="text/css">
+		body { 
+		   opacity: 0;
+		   transition: opacity 1s;
+		}
+	</style>
+	<script type="text/javascript">
+		window.transitionToPage = function(href) {
+		    document.querySelector('body').style.opacity = 0
+		    setTimeout(function() { 
+		        window.location.href = href
+		    }, 500)
+		}
+
+		document.addEventListener('DOMContentLoaded', function(event) {
+		    document.querySelector('body').style.opacity = 1
+		})	
+	</script>
+</head>
+<body style="background-image: linear-gradient(to right, lightgray , lightblue);">
+	<div class="m-8 md:flex md:justify-between">
+		<div class="text-4xl text-indigo-900 font-display font-semibold w-full md:w-2/3">PocketWork Dashboard</div>
+		<a href="{{ url_for('logout')}}"><button class="text-md text-white mt-2 border-2 px-2 py-1 rounded-lg w-24 md:w-32 md:float-right bg-indigo-400 hover:bg-indigo-200">Logout</button></a>
+		<a href="{{ url_for('createjob')}}"><button class="text-md text-white mt-2 border-2 px-2 py-1 rounded-lg w-24 md:w-32 md:float-right bg-indigo-400 hover:bg-indigo-200">Create job</button></a>
+		<a href="{{ url_for('applications')}}"><button class="text-md text-white mt-2 border-2 px-2 py-1 rounded-lg w-24 md:w-32 md:float-right bg-indigo-400 hover:bg-indigo-200">Applications</button></a>		
+	</div>
+	<br>
+    <h3 class="mt-8 mx-8 text-xl font-serif md:text-2xl font-diplay my-auto">Welcome back ! {{ session['email'].split("@")[0] }}</h3>
+    <h3 class="mt-8 mx-8 text-xl font-serif md:text-2xl font-diplay">Filter Jobs using keywords or categories</h3>
+    <input type="text" class="m-4 w-11/12 md:w-1/3 rounded-lg px-4 h-10">
+    <span class="mt-8 mx-8 text-xl font-serif md:text-2xl font-diplay">City&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <select id="city" name="city" class="m-4 rounded-lg px-4 h-10 w-1/2 md:w-auto">
+        <option value="hyd">Delhi</option>
+        <option value="hyd">Hyderabad</option>
+        <option value="chn">Chennai</option>
+        <option value="mum">Mumbai</option>
+        <option value="ban">Banglore</option>
+    </select>
+    <span class="mt-8 mx-8 text-xl font-serif md:text-2xl font-diplay w-1/2">Category</span>
+    <select id="cat" name="cat" class="m-4 rounded-lg px-4 h-10 w-1/2 md:w-auto">
+        <option value="arts">Arts</option>
+        <option value="pro">Programming</option>
+        <option value="wood">Woodworking</option>
+        <option value="mus">Music</option>
+        <option value="pho">Photography</option>
+        <option value="gar">Gardening</option>
+    </select>
+    <button class="w-11/12 md:w-32 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white md:m-0">Search</button>
+
+    {% for post in posts %}
+    <div class="m-4 md:flex md:justify-between w-11/12 border-4 rounded-lg pb-4">
+        <div class="m-4 rounded-lg">
+            <h3 class="text-xl font-serif md:text-2xl font-diplay mx-4">{{ post.title }}</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4">{{ post.desc }}</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4 font-semibold">PocketMoney : {{ post.money }}$</h3>
+            <br>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">City: {{post.city}}</h3>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Category: {{post.category}}</h3>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Posted by: {{ post.poster }}</h3>
+        </div>  
+        <button onclick='location.href="/apply?title={{ post.title }}&poster={{ post.poster }}";' class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Apply</button>
+    </div>
+    {% endfor %}
+    <!-- <div class="m-4 md:flex md:justify-between w-11/12 border-4 rounded-lg pb-4">
+        <div class="m-4 rounded-lg">
+            <h3 class="text-xl font-serif md:text-2xl font-diplay mx-4">Gardener required!</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4">My lawn has been overgrown since 1 year, need an experienced gardener to clean it off.</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4 font-semibold">PocketMoney : 70$</h3>
+            <br>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">City: Delhi</h3>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Posted by: John Doe</h3>
+        </div>  
+        <button class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Apply</button>
+    </div>
+    <div class="m-4 md:flex md:justify-between w-11/12 border-4 rounded-lg pb-4">
+        <div class="m-4 rounded-lg">
+            <h3 class="text-xl font-serif md:text-2xl font-diplay mx-4">Guitarist required for birthday party!</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4">Guitarist with sufficient skills and knowledge of variety of songs required.</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4 font-semibold">PocketMoney : 60$</h3>
+            <br>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">City: Mumbai</h3>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Posted by: Jane Doe</h3>
+        </div>  
+        <button class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Apply</button>
+    </div>
+    <div class="m-4 md:flex md:justify-between w-11/12 border-4 rounded-lg pb-4">
+        <div class="m-4 rounded-lg">
+            <h3 class="text-xl font-serif md:text-2xl font-diplay mx-4">Frontend developer</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4">We need a developer skilled in X,Y,Z skills to make a small website.</h3>
+            <h3 class="text-md text-gray-700 font-serif md:text-xl font-diplay mx-4 font-semibold">PocketMoney : 50$</h3>
+            <br>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">City: Chennai</h3>
+            <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Posted by: Jack Smith</h3>
+        </div>  
+        <button class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Apply</button>
+    </div> -->
+
+
+ 
+</body>
+</html>
