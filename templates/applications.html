@@ -33,7 +33,16 @@
 		<a href="{{ url_for('dashboard')}}"><button class="text-md text-white mt-2 border-2 px-2 py-1 rounded-lg w-24 md:w-32 md:float-right bg-indigo-400 hover:bg-indigo-200">Dashboard</button></a>		
 	</div>
 	<br>
-    <h3 class="mt-8 mx-8 text-xl font-serif md:text-2xl font-diplay my-auto">Hello ! {{ session['email'].split("@")[0] }}</h3>
+    <h3 class="mt-8 mx-8 text-xl font-serif md:text-2xl font-diplay my-auto">Hello ! <span class="text-indigo-700">{{ session['email'].split("@")[0] }}</span></h3>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <h3 class="mt-8 mx-8 text-green-500 text-xl font-serif md:text-md font-diplay my-auto">{{ message }}</h3>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <h3 class="mt-8 mx-8 text-2xl text-indigo-500 font-serif md:text-4xl font-diplay">My job listings</h3>
 
     {% for post in myposts %}
@@ -48,7 +57,7 @@
             <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Posted by: {{ post.poster }}</h3>
         </div>
         <button onclick='location.href="/checkapp?title={{ post.title }}";' class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Check applications</button>  
-        <button class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Remove Job</button>
+        <button onclick='location.href="/removejob?title={{ post.title }}";' class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Remove Job</button>
     </div>
     {% endfor %}
     <hr>
@@ -66,7 +75,7 @@
             <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Category: {{post.category}}</h3>
             <h3 class="text-md font-serif md:text-xl font-diplay mx-4">Posted by: {{ post.poster }}</h3>
         </div>  
-        <button class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Remove application</button>
+        <button onclick='location.href="/removeapp?title={{ post.title }}";' class="w-11/12 md:w-64 border-2 bg-indigo-400 rounded-lg h-10 m-4 text-white my-auto">Remove application</button>
     </div>
     {% endfor %}
     {% endfor %}

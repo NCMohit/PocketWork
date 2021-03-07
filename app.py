@@ -89,7 +89,14 @@ def dashboard():
       return redirect(url_for("login"))
    else:
       allposts = Posts.query.all()
-      return render_template('dashboard.html',posts = allposts)
+      if(request.args.get("cat") is not None):
+         key = request.args.get("key")
+         city = request.args.get("city")
+         cat = request.args.get("cat")
+         allposts = Posts.query.filter_by(city=city,category=cat)
+         if(key != ""):
+            allposts = allposts.filter(Posts.title.contains(key))
+      return render_template('dashboard.html',posts = allposts,Applications = Applications)
 
 @app.route('/createjob',methods=["POST","GET"])
 def createjob():
@@ -102,9 +109,13 @@ def createjob():
       money = request.form["money"]
       city = request.form["city"]
       cat = request.form["cat"]
-      newpost = Posts(title=title,desc=desc,category=cat,money=money,city=city,poster=session['email'])
-      db.session.add(newpost)
-      db.session.commit()
+      if(Posts.query.filter_by(title=title).first() is not None):
+         flash("Title already exists ! Please choose another title")
+         return redirect(url_for("createjob"))    
+      else:     
+         newpost = Posts(title=title,desc=desc,category=cat,money=money,city=city,poster=session['email'])
+         db.session.add(newpost)
+         db.session.commit()
       return redirect(url_for("dashboard"))
    else:
       return render_template('createjob.html')
@@ -130,9 +141,16 @@ def apply():
       title = request.args.get("title")
       poster = request.args.get("poster")
       applier = session['email']
-      newapply = Applications(title=title,poster=poster,applier=applier)
-      db.session.add(newapply)
-      db.session.commit()
+      if(Applications.query.filter_by(title=title,poster=poster,applier=applier).first() is not None):
+         flash("You have already applied for this job !")
+         return redirect(url_for("dashboard"))
+      elif(poster==applier):
+         flash("You can't apply for your own job !")
+         return redirect(url_for("dashboard"))         
+      else:
+         newapply = Applications(title=title,poster=poster,applier=applier)
+         db.session.add(newapply)
+         db.session.commit()
       return redirect(url_for("applications"))
 
 @app.route('/checkapp',methods=["POST","GET"])
@@ -145,6 +163,33 @@ def checkapp():
       poster = session['email']
       applications = Applications.query.filter_by(title=title,poster=poster)
       return render_template("checkapp.html",apps=applications)
+
+@app.route('/removeapp',methods=["POST","GET"])
+def removeapp():
+   if("email" not in session):
+      flash("Please log in first to apply for any job !")
+      return redirect(url_for("login"))
+   else:
+      title = request.args.get("title")
+      applier = session['email']
+      Applications.query.filter_by(title=title,applier=applier).delete()
+      db.session.commit()
+      flash("Application successfully removed")
+      return redirect(url_for("applications"))
+
+@app.route('/removejob',methods=["POST","GET"])
+def removejob():
+   if("email" not in session):
+      flash("Please log in first to apply for any job !")
+      return redirect(url_for("login"))
+   else:
+      title = request.args.get("title")
+      poster = session['email']
+      Applications.query.filter_by(title=title,poster=poster).delete()
+      Posts.query.filter_by(title=title,poster=poster).delete()
+      db.session.commit()
+      flash("Job successfully removed")
+      return redirect(url_for("applications"))
 
 @app.route('/logout')
 def logout():
